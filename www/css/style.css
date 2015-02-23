@@ -4,8 +4,13 @@ html, body{
     padding: 0px
 }
 
+a {
+    color: blue;
+}
+
 #map-content {
-    padding: 0px;
+    height: 100%;
+    padding: 0px 0px 90px 0px;
 }
 
 #map-canvas {
@@ -13,6 +18,22 @@ html, body{
     width: 100%;
 }
 
-.scroll {
-    height: 100%;
+#refresh {
+    background-color: transparent;
+    border: 0px;
+}
+
+#search {
+    margin-top: 16px;
+    border: 1px solid transparent;
+    border-radius: 2px 0 0 2px;
+    box-sizing: border-box;
+    outline: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    background-color: #fff;
+    padding: 0 11px 0 13px;
+    max-width: 60%;
+    font-size: 15px;
+    font-weight: 300;
+    text-overflow: ellipsis;
 }

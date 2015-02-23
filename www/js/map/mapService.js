@@ -26,7 +26,10 @@
             var places = searchBox.getPlaces(),
                 bounds,
                 marker,
-                i;
+                i,
+                oldBounds = map.getBounds(),
+                expandBounds = true;
+
 
             if (places.length > 0) {
                 for (i = 0; i < markers.length; i++) {
@@ -48,9 +51,16 @@
 
                     markers.push(marker);
                     bounds.extend(place.geometry.location);
+
+                    // Check if the existing map bounds contains at least one of the new places.
+                    if (oldBounds.contains(place.geometry.location)) {
+                        expandBounds = false;
+                    }
                 }
 
-                map.fitBounds(bounds);
+                if (expandBounds) {
+                    map.fitBounds(bounds);
+                }
             }
         }
 
@@ -114,11 +124,16 @@
 
         function positionMarker() {
             var coordinates = new google.maps.LatLng(center.latitude, center.longitude);
-            currentMarker = new google.maps.Marker({
-                position: coordinates,
-                icon: {url: 'http://www.google.com/intl/en_us/mapfiles/ms/micons/blue-dot.png'},
-                map: map
-            });
+
+            if (!currentMarker) {
+                currentMarker = new google.maps.Marker({
+                    position: coordinates,
+                    icon: {url: 'http://www.google.com/intl/en_us/mapfiles/ms/micons/blue-dot.png'},
+                    map: map
+                });
+            } else {
+                currentMarker.setPosition(coordinates);
+            }
         }
 
         this.initialize = function() {
@@ -130,8 +145,13 @@
         };
 
         this.setPosition = function() {
+            var options = {
+                enableHighAccuracy: true,
+                timeout: 60000
+            };
+
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(setCenter, positionMarker, {enableHighAccuracy: true});
+                navigator.geolocation.watchPosition(setCenter, positionMarker, options);
             } else {
                 positionMarker();
             }
