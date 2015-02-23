@@ -2,7 +2,7 @@
  * Created by Kelly on 2/20/2015.
  */
 (function () {
-    angular.module('accessibleVancouver').service('MapService', ['$http', function($http) {
+    angular.module('VancouverAccessibleParking').service('MapService', ['$http', function($http) {
         var map,
             searchBox,
             infoWindow,
@@ -27,21 +27,22 @@
             var places = searchBox.getPlaces(),
                 bounds,
                 marker,
-                i,
                 oldBounds = map.getBounds(),
                 expandBounds = true;
 
-
             if (places.length > 0) {
-                for (i = 0; i < markers.length; i++) {
+                for (var i = 0; i < markers.length; i++) {
                     markers[i].setMap(null);
                 }
                 markers = [];
 
                 bounds = new google.maps.LatLngBounds();
-                bounds.extend(currentMarker.getPosition());
 
-                for (var i = 0, place; place = places[i]; i++) {
+                if (currentMarker) {
+                    bounds.extend(currentMarker.getPosition());
+                }
+
+                for (var j = 0, place; place = places[j]; j++) {
 
                     // Create a marker for each place.
                     marker = new google.maps.Marker({
@@ -69,8 +70,8 @@
             var input = document.getElementById('search');
             map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 
-            var refresh = document.getElementById('refresh');
-            map.controls[google.maps.ControlPosition.RIGHT_TOP].push(refresh);
+            var tracking = document.getElementById('tracking-toggle');
+            map.controls[google.maps.ControlPosition.RIGHT_TOP].push(tracking);
 
             searchBox = new google.maps.places.SearchBox(input);
         }

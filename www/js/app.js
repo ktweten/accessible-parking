@@ -1,4 +1,4 @@
-angular.module('accessibleVancouver', ['ionic'])
+angular.module('VancouverAccessibleParking', ['ionic'])
 
     .run(function ($ionicPlatform) {
         $ionicPlatform.ready(function () {

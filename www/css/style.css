@@ -8,6 +8,10 @@ a, .tracking {
     color: blue;
 }
 
+#app-info {
+    padding: 5%;
+}
+
 #map-content {
     height: 100%;
     padding: 0px 0px 90px 0px;
@@ -18,7 +22,7 @@ a, .tracking {
     width: 100%;
 }
 
-#refresh {
+#trackin-toggle {
     background-color: white;
     border-radius: 50%;
     border: 0px;
