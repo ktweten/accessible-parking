@@ -4,7 +4,7 @@ html, body{
     padding: 0px
 }
 
-a {
+a, .tracking {
     color: blue;
 }
 
@@ -19,7 +19,8 @@ a {
 }
 
 #refresh {
-    background-color: transparent;
+    background-color: white;
+    border-radius: 50%;
     border: 0px;
 }
 

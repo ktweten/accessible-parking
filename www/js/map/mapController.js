@@ -6,9 +6,11 @@
         function($scope, MapService) {
             var Map = MapService;
             Map.initialize();
+            $scope.tracking = false;
 
-            $scope.refreshPosition = function() {
-                Map.setPosition();
+            $scope.toggleTracking = function() {
+                $scope.tracking = !$scope.tracking;
+                Map.toggleTracking();
             }
     }]);
 })();

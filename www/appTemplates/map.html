@@ -2,7 +2,8 @@
     <ion-content id="map-content" class="padding" has-bouncing="false" scroll="false">
         <span>
             <input id="search" type="text" placeholder="Search">
-            <button id="refresh" class="button icon ion-refresh" ng-click="refreshPosition()"></button>
+            <button id="refresh" class="button icon ion-android-locate"
+                    ng-class="{ 'tracking' : tracking}" ng-click="toggleTracking()"></button>
         </span>
         <div id='map-canvas' data-tap-disabled="true"></div>
     </ion-content>

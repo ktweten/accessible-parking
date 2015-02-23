@@ -8,10 +8,11 @@
             infoWindow,
             markers = [],
             currentMarker,
+            watchId,
             center = {
-            latitude: 49.275,
-            longitude: -123.115
-        };
+                latitude: 49.275,
+                longitude: -123.115
+            };
 
         function setCenter(position) {
             // Minimum accuracy is 100 meters, otherwise use the default location.
@@ -141,21 +142,31 @@
             setControls();
             setListeners();
             loadParkingData();
-            this.setPosition();
         };
 
-        this.setPosition = function() {
-            var options = {
-                enableHighAccuracy: true,
-                timeout: 60000
-            };
+        this.toggleTracking = function() {
 
-            if (navigator.geolocation) {
-                navigator.geolocation.watchPosition(setCenter, positionMarker, options);
+            if (currentMarker) {
+                if (watchId) {
+                    navigator.geolocation.clearWatch(watchId);
+                    watchId = null;
+                }
+
+                currentMarker.setMap(null);
+                currentMarker = null;
             } else {
-                positionMarker();
+                var options = {
+                    enableHighAccuracy: true,
+                    timeout: 60000
+                };
+
+                if (navigator.geolocation) {
+                    watchId = navigator.geolocation.watchPosition(setCenter, positionMarker, options);
+                } else {
+                    positionMarker();
+                }
             }
-        };
+        }
 
     }]);
 })();
