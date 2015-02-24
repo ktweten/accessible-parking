@@ -11,6 +11,6 @@
             $scope.toggleTracking = function() {
                 $scope.tracking = !$scope.tracking;
                 Map.toggleTracking();
-            }
+            };
     }]);
 })();

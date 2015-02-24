@@ -23,12 +23,66 @@
             positionMarker();
         }
 
-        function updatePlaces() {
-            var places = searchBox.getPlaces(),
-                bounds,
-                marker,
+        function makeMarkerCallback(point) {
+            var marker = point;
+
+            return function() {
+
+                if (infoWindow) {
+                    infoWindow.close();
+                }
+
+                infoWindow = new google.maps.InfoWindow({
+                    content: marker.title
+                });
+                infoWindow.open(map, marker);
+            }
+        }
+
+        function setMapBounds() {
+            var innerBounds = new google.maps.LatLngBounds(),
+                outerBounds = new google.maps.LatLngBounds(),
+                currentInBounds = true,
+                markerInBounds = false,
                 oldBounds = map.getBounds(),
-                expandBounds = true;
+                i;
+
+            if (currentMarker && currentMarker.getPosition() && !oldBounds.contains(currentMarker.getPosition())) {
+                innerBounds.extend(currentMarker.getPosition());
+                outerBounds.extend(currentMarker.getPosition());
+                currentInBounds = false;
+            }
+
+            for (i = 0; i < markers.length; i += 1) {
+                // Check if the existing map bounds contains at least one of the new places.
+                if (oldBounds.contains(markers[i].position)) {
+                    markerInBounds = true;
+                    innerBounds.extend(markers[i].position);
+                } else {
+                    outerBounds.extend(markers[i].position);
+                }
+            }
+
+            if (!currentInBounds) {
+                map.fitBounds(innerBounds);
+            } else if (!markerInBounds && markers.length > 0) {
+                map.fitBounds(outerBounds);
+            }
+        }
+
+        function setPlaceMakers() {
+            var places = searchBox.getPlaces(),
+                marker,
+                search;
+
+            search = document.getElementById('search');
+
+            if (search) {
+                search.blur();
+                if (window.cordova) {
+                    cordova.plugins.Keyboard.close();
+                }
+            }
 
             if (places.length > 0) {
                 for (var i = 0; i < markers.length; i++) {
@@ -36,33 +90,20 @@
                 }
                 markers = [];
 
-                bounds = new google.maps.LatLngBounds();
-
-                if (currentMarker) {
-                    bounds.extend(currentMarker.getPosition());
-                }
 
                 for (var j = 0, place; place = places[j]; j++) {
-
-                    // Create a marker for each place.
                     marker = new google.maps.Marker({
                         map: map,
                         title: place.name,
                         position: place.geometry.location
                     });
 
+                    google.maps.event.addListener(marker, 'click', makeMarkerCallback(marker));
+
                     markers.push(marker);
-                    bounds.extend(place.geometry.location);
-
-                    // Check if the existing map bounds contains at least one of the new places.
-                    if (oldBounds.contains(place.geometry.location)) {
-                        expandBounds = false;
-                    }
                 }
 
-                if (expandBounds) {
-                    map.fitBounds(bounds);
-                }
+                setMapBounds();
             }
         }
 
@@ -77,7 +118,7 @@
         }
 
         function setListeners() {
-            google.maps.event.addListener(searchBox, 'places_changed', updatePlaces);
+            google.maps.event.addListener(searchBox, 'places_changed', setPlaceMakers);
 
             google.maps.event.addListener(map, 'bounds_changed', function() {
                 var bounds = map.getBounds();
@@ -130,9 +171,10 @@
             if (!currentMarker) {
                 currentMarker = new google.maps.Marker({
                     position: coordinates,
-                    icon: {url: 'http://www.google.com/intl/en_us/mapfiles/ms/micons/blue-dot.png'},
+                    icon: { url: 'http://www.google.com/intl/en_us/mapfiles/ms/micons/blue-dot.png' },
                     map: map
                 });
+                setMapBounds();
             } else {
                 currentMarker.setPosition(coordinates);
             }
@@ -146,6 +188,12 @@
         };
 
         this.toggleTracking = function() {
+
+            var container = document.getElementsByClassName('pac-container');
+            if (container && container.length > 0) {
+                alert("Found");
+                container[0].setAttribute('data-tap-disabled', 'true');
+            }
 
             if (currentMarker) {
                 if (watchId) {
@@ -167,7 +215,7 @@
                     positionMarker();
                 }
             }
-        }
+        };
 
     }]);
 })();
