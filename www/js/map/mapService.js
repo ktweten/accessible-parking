@@ -25,12 +25,12 @@
                 currentInBounds = true,
                 markerInBounds = false,
                 oldBounds = map.getBounds(),
+                oldZoom = map.getZoom(),
                 i;
 
-            if (currentMarker && currentMarker.getPosition() && !oldBounds.contains(currentMarker.getPosition())) {
+            if (currentMarker && currentMarker.getPosition()) {
                 innerBounds.extend(currentMarker.getPosition());
                 outerBounds.extend(currentMarker.getPosition());
-                currentInBounds = false;
             }
 
             for (i = 0; i < placeMarkers.length; i += 1) {
@@ -42,10 +42,14 @@
                 }
             }
 
-            if (!currentInBounds) {
+            if (markerInBounds || placeMarkers.length < 1) {
                 map.fitBounds(innerBounds);
-            } else if (!markerInBounds && placeMarkers.length > 0) {
+            } else if (placeMarkers.length > 0) {
                 map.fitBounds(outerBounds);
+            }
+
+            if (map.getZoom() > oldZoom) {
+                map.setZoom(oldZoom);
             }
         }
 

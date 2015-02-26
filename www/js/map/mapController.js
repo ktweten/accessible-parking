@@ -13,16 +13,27 @@
             $scope.searchText = "";
             $scope.predictions = [];
 
-            $scope.toggleTracking = function () {
-                $scope.tracking = !$scope.tracking;
-                Map.toggleTracking();
-            };
-
             function updatePredictions(predictions, status) {
                 if (status === google.maps.places.PlacesServiceStatus.OK) {
                     $scope.predictions = predictions;
                 }
             }
+
+            function blurSearch() {
+                var search = document.getElementById('search');
+
+                if (search) {
+                    search.blur();
+                    if (window.cordova) {
+                        cordova.plugins.Keyboard.close();
+                    }
+                }
+            }
+
+            $scope.toggleTracking = function () {
+                $scope.tracking = !$scope.tracking;
+                Map.toggleTracking();
+            };
 
             $scope.update = function () {
                 var options = {
@@ -46,17 +57,6 @@
                 }
             };
 
-            function blurSearch() {
-                var search = document.getElementById('search');
-
-                if (search) {
-                    search.blur();
-                    if (window.cordova) {
-                        cordova.plugins.Keyboard.close();
-                    }
-                }
-            }
-
             $scope.enterText = function () {
                 $scope.$apply(function () {
                     blurSearch();
@@ -64,5 +64,5 @@
                     Map.getPlaces($scope.searchText);
                 });
             };
-    }]);
+        }]);
 })();

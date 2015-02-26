@@ -1,6 +1,8 @@
 angular.module('VancouverAccessibleParking', ['ionic'])
 
     .run(function ($ionicPlatform) {
+        'use strict';
+
         $ionicPlatform.ready(function () {
             // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
             // for form inputs)
@@ -15,6 +17,8 @@ angular.module('VancouverAccessibleParking', ['ionic'])
     })
 
     .config(function ($stateProvider, $urlRouterProvider, $ionicConfigProvider) {
+        'use strict';
+
         $ionicConfigProvider.platform.android.tabs.position("bottom");
 
         // Ionic uses AngularUI Router which uses the concept of states
@@ -38,9 +42,11 @@ angular.module('VancouverAccessibleParking', ['ionic'])
     })
 
     .directive('onEnter', function () {
+        'use strict';
+
         return function ($scope, element, attrs) {
             element.bind("keydown keypress", function (event) {
-                if(event.which === 13) {
+                if (event.which === 13) {
                     $scope.$eval(attrs.onEnter);
                     event.preventDefault();
                 }

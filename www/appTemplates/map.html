@@ -5,12 +5,12 @@
         <div id="entry">
             <input id="search" type="text" placeholder="Search" ng-model="searchText" ng-change="update()" on-enter="enterText()">
             <ul>
-                <li class="place" ng-repeat="p in predictions" ng-click="setPlace(p)">{{p.description}}</li>
+                <li class="place" ng-repeat="p in predictions" ng-click="setPlace(p)">{{ p.description }}</li>
             </ul>
         </div>
 
         <button id="tracking-toggle" class="button icon ion-android-locate"
-                ng-class="{ 'tracking' : tracking}" ng-click="toggleTracking()"></button>
+                ng-class="{ 'tracking' : tracking }" ng-click="toggleTracking()"></button>
         <div id='map-canvas'></div>
     </ion-content>
 </ion-view>

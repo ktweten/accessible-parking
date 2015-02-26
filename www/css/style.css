@@ -1,10 +1,10 @@
 
 html, body{
-    margin: 0px;
-    padding: 0px
+    margin: 0;
+    padding: 0
 }
 
-a, .tracking {
+a, .tracking, .tracking:hover{
     color: blue;
 }
 
@@ -14,7 +14,7 @@ a, .tracking {
 
 #map-content {
     height: 100%;
-    padding: 0px 0px 90px 0px;
+    padding: 0 0 90px 0;
 }
 
 #map-canvas {
@@ -25,12 +25,12 @@ a, .tracking {
 #tracking-toggle {
     background-color: white;
     border-radius: 50%;
-    border: 0px;
+    border: 0;
 }
 
 .place {
-    padding-left: 25px;
-    padding-bottom: 5px;
+    padding-left: 30px;
+    padding-bottom: 10px;
 }
 
 #entry {
