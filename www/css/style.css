@@ -22,13 +22,18 @@ a, .tracking {
     width: 100%;
 }
 
-#trackin-toggle {
+#tracking-toggle {
     background-color: white;
     border-radius: 50%;
     border: 0px;
 }
 
-#search {
+.place {
+    padding-left: 25px;
+    padding-bottom: 5px;
+}
+
+#entry {
     margin-top: 16px;
     border: 1px solid transparent;
     border-radius: 2px 0 0 2px;
@@ -37,7 +42,7 @@ a, .tracking {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
     background-color: #fff;
     padding: 0 11px 0 13px;
-    max-width: 60%;
+    width: 60%;
     font-size: 15px;
     font-weight: 300;
     text-overflow: ellipsis;

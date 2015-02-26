@@ -1,4 +1,4 @@
-angular.module('VancouverAccessibleParking', ['ionic'])
+angular.module('VancouverAccessibleParking', ['ionic', 'ion-google-place'])
 
     .run(function ($ionicPlatform) {
         $ionicPlatform.ready(function () {
@@ -25,8 +25,7 @@ angular.module('VancouverAccessibleParking', ['ionic'])
 
             .state('map', {
                 url: "/map",
-                templateUrl: 'appTemplates/map.html',
-                controller: 'MapController'
+                templateUrl: 'appTemplates/map.html'
             })
 
             .state('info', {
@@ -36,4 +35,16 @@ angular.module('VancouverAccessibleParking', ['ionic'])
         // if none of the above states are matched, use this as the fallback
         $urlRouterProvider.otherwise('/map');
 
+    })
+
+    .directive('onEnter', function () {
+        return function (scope, element, attrs) {
+            element.bind("keydown keypress", function (event) {
+                if(event.which === 13) {
+                    scope.$eval(attrs.onEnter);
+                    event.preventDefault();
+                }
+            });
+        };
     });
+
