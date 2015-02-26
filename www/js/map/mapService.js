@@ -2,7 +2,9 @@
  * Created by Kelly on 2/20/2015.
  */
 (function () {
-    angular.module('VancouverAccessibleParking').service('MapService', ['$http', function($http) {
+    'use strict';
+
+    angular.module('VancouverAccessibleParking').service('MapService', [function () {
         var center = {
                 latitude: 49.275,
                 longitude: -123.115
@@ -16,29 +18,6 @@
             watchId;
 
         self.predictions = [];
-
-        function setCenter(position) {
-            // Minimum accuracy is 100 meters, otherwise use the default location.
-            if (position.coords.accuracy < 100) {
-                center.latitude = position.coords.latitude;
-                center.longitude = position.coords.longitude;
-            }
-            positionMarker();
-        }
-
-        function makeInfoWindow(place) {
-
-            return function() {
-                if (infoWindow) {
-                    infoWindow.close();
-                }
-
-                infoWindow = new google.maps.InfoWindow({
-                    content: place.title
-                });
-                infoWindow.open(map, place);
-            };
-        }
 
         function setMapBounds() {
             var innerBounds = new google.maps.LatLngBounds(),
@@ -70,44 +49,89 @@
             }
         }
 
-        function setMarker(place, status) {
-            if (status == google.maps.places.PlacesServiceStatus.OK) {
-                setPlaceMarkers([place]);
+        function markCurrentPosition() {
+            var coordinates = new google.maps.LatLng(center.latitude, center.longitude);
+
+            if (!currentMarker) {
+                currentMarker = new google.maps.Marker({
+                    position: coordinates,
+                    icon: { url: 'http://www.google.com/intl/en_us/mapfiles/ms/micons/blue-dot.png' },
+                    map: map
+                });
+                setMapBounds();
+            } else {
+                currentMarker.setPosition(coordinates);
             }
         }
 
-        this.getPlaceDetails = function(place) {
-            placeService.getDetails({ placeId: place.place_id }, setMarker);
-        };
-
-        this.getPlaces = function(searchTerm) {
-            var options = {
-                bounds: map.getBounds(),
-                keyword: searchTerm
-            };
-
-            placeService.nearbySearch(options, setPlaceMarkers);
-        };
-
-        function setControls() {
-            var input = document.getElementById('entry');
-            var tracking = document.getElementById('tracking-toggle');
-
-            map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-            map.controls[google.maps.ControlPosition.RIGHT_TOP].push(tracking);
+        function setCenter(position) {
+            // Minimum accuracy is 100 meters, otherwise use the default location.
+            if (position.coords.accuracy < 100) {
+                center.latitude = position.coords.latitude;
+                center.longitude = position.coords.longitude;
+            }
+            markCurrentPosition();
         }
 
-        function loadMap() {
-            var mapOptions = {
-                zoom: 13,
-                center: new google.maps.LatLng(center.latitude, center.longitude)
+        function clearPlaceMarkers() {
+            var i;
+
+            for (i = 0; i < placeMarkers.length; i += 1) {
+                placeMarkers[i].setMap(null);
+                placeMarkers[i] = null;
+            }
+            placeMarkers = [];
+        }
+
+        function makeInfoWindowCallback(place) {
+
+            return function () {
+                if (infoWindow) {
+                    infoWindow.close();
+                }
+
+                infoWindow = new google.maps.InfoWindow({
+                    content: place.title
+                });
+                infoWindow.open(map, place);
             };
-            map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+        }
+
+        function addMarkers(places) {
+            var i,
+                marker;
+
+            clearPlaceMarkers();
+
+            for (i = 0; i < places.length; i += 1) {
+                marker = new google.maps.Marker({
+                    map: map,
+                    title: places[i].name,
+                    position: places[i].geometry.location
+                });
+
+                google.maps.event.addListener(marker, 'click', makeInfoWindowCallback(marker));
+                placeMarkers.push(marker);
+            }
+
+            setMapBounds();
+        }
+
+        function markPlace(place, status) {
+            if (status === google.maps.places.PlacesServiceStatus.OK) {
+                addMarkers([place]);
+            }
+        }
+
+        function markPlaces(places, status) {
+            if (status === google.maps.places.PlacesServiceStatus.OK && places.length > 0) {
+                addMarkers(places);
+            }
         }
 
         function openInfoWindow(kmlEvent) {
-            var text = kmlEvent.featureData.description;
-            var index = text.indexOf("<br><a href=");
+            var text = kmlEvent.featureData.description,
+                index = text.indexOf("<br><a href=");
 
             if (index >= 0) {
                 text = text.slice(0, index);
@@ -125,42 +149,59 @@
         }
 
         function loadParkingData() {
-            var kmlUrl = 'http://data.vancouver.ca/download/kml/disability_parking.kmz';
-            var kmlOptions = {
-                suppressInfoWindows: true,
-                preserveViewport: true,
-                map: map
-            };
-            var kmlLayer = new google.maps.KmlLayer(kmlUrl, kmlOptions);
+            var kmlUrl = 'http://data.vancouver.ca/download/kml/disability_parking.kmz',
+                kmlOptions = {
+                    suppressInfoWindows: true,
+                    preserveViewport: true,
+                    map: map
+                },
+                kmlLayer = new google.maps.KmlLayer(kmlUrl, kmlOptions);
 
             google.maps.event.addListener(kmlLayer, 'click', openInfoWindow);
         }
 
-        function positionMarker() {
-            var coordinates = new google.maps.LatLng(center.latitude, center.longitude);
+        function setControls() {
+            var input = document.getElementById('entry'),
+                tracking = document.getElementById('tracking-toggle');
 
-            if (!currentMarker) {
-                currentMarker = new google.maps.Marker({
-                    position: coordinates,
-                    icon: { url: 'http://www.google.com/intl/en_us/mapfiles/ms/micons/blue-dot.png' },
-                    map: map
-                });
-                setMapBounds();
-            } else {
-                currentMarker.setPosition(coordinates);
-            }
+            map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+            map.controls[google.maps.ControlPosition.RIGHT_TOP].push(tracking);
         }
 
-        this.initialize = function() {
-            loadMap();
-            setControls();
-            loadParkingData();
+        function loadMap() {
+            var mapOptions = {
+                zoom: 13,
+                center: new google.maps.LatLng(center.latitude, center.longitude)
+            };
+
+            map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+        }
+
+        function loadPlaceService() {
             placeService = new google.maps.places.PlacesService(map);
+        }
+
+        this.getBounds = function () {
+            return map.getBounds();
         };
 
-        this.toggleTracking = function() {
+        this.getPlaceDetails = function (place) {
+            placeService.getDetails({ placeId: place.place_id }, markPlace);
+        };
 
-            var container = document.getElementsByClassName('pac-container');
+        this.getPlaces = function (searchTerm) {
+            var options = {
+                bounds: map.getBounds(),
+                keyword: searchTerm
+            };
+
+            placeService.nearbySearch(options, markPlaces);
+        };
+
+        this.toggleTracking = function () {
+            var container = document.getElementsByClassName('pac-container'),
+                options;
+
             if (container && container.length > 0) {
                 container[0].setAttribute('data-tap-disabled', 'true');
             }
@@ -174,50 +215,22 @@
                 currentMarker.setMap(null);
                 currentMarker = null;
             } else {
-                var options = {
+                options = {
                     enableHighAccuracy: true,
                     timeout: 60000
                 };
 
                 if (navigator.geolocation) {
-                    watchId = navigator.geolocation.watchPosition(setCenter, positionMarker, options);
+                    watchId = navigator.geolocation.watchPosition(setCenter, markCurrentPosition, options);
                 } else {
-                    positionMarker();
+                    markCurrentPosition();
                 }
             }
         };
 
-        function clearPlaceMarkers() {
-            for (var i = 0; i < placeMarkers.length; i += 1) {
-                placeMarkers[i].setMap(null);
-                placeMarkers[i] = null;
-            }
-            placeMarkers = [];
-        }
-
-        function setPlaceMarkers(places, status) {
-            var i;
-            clearPlaceMarkers();
-
-            if (places.length > 0) {
-                for (i = 0; i < places.length; i += 1) {
-                    marker = new google.maps.Marker({
-                        map: map,
-                        title: places[i].name,
-                        position: places[i].geometry.location
-                    });
-
-                    google.maps.event.addListener(marker, 'click', makeInfoWindow(marker));
-                    placeMarkers.push(marker);
-                }
-
-                setMapBounds();
-            }
-        }
-
-        this.getBounds = function() {
-            return map.getBounds();
-        };
-
+        loadMap();
+        loadPlaceService();
+        setControls();
+        loadParkingData();
     }]);
 })();

@@ -2,26 +2,29 @@
  * Created by Kelly on 2/20/2015.
  */
 (function () {
+    'use strict';
+
     angular.module('VancouverAccessibleParking').controller('MapController', ['$scope', 'MapService',
-        function($scope, MapService) {
+        function ($scope, MapService) {
             var Map = MapService,
                 autocompleteService = new google.maps.places.AutocompleteService();
 
-            Map.initialize();
             $scope.tracking = false;
             $scope.searchText = "";
             $scope.predictions = [];
 
-            $scope.toggleTracking = function() {
+            $scope.toggleTracking = function () {
                 $scope.tracking = !$scope.tracking;
                 Map.toggleTracking();
             };
 
             function updatePredictions(predictions, status) {
-                $scope.predictions = predictions;
+                if (status === google.maps.places.PlacesServiceStatus.OK) {
+                    $scope.predictions = predictions;
+                }
             }
 
-            $scope.update = function() {
+            $scope.update = function () {
                 var options = {
                     input: $scope.searchText,
                     bounds: Map.getBounds()
@@ -32,7 +35,7 @@
                 }
             };
 
-            $scope.setPlace = function(place) {
+            $scope.setPlace = function (place) {
                 blurSearch();
                 $scope.searchText = place.description;
                 $scope.predictions = [];
@@ -41,14 +44,6 @@
                 } else {
                     Map.getPlaces($scope.searchText);
                 }
-            };
-
-            $scope.enterText = function() {
-                $scope.$apply(function() {
-                    blurSearch();
-                    $scope.predictions = [];
-                    Map.getPlaces($scope.searchText);}
-                );
             };
 
             function blurSearch() {
@@ -61,5 +56,13 @@
                     }
                 }
             }
+
+            $scope.enterText = function () {
+                $scope.$apply(function () {
+                    blurSearch();
+                    $scope.predictions = [];
+                    Map.getPlaces($scope.searchText);
+                });
+            };
     }]);
 })();

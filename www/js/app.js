@@ -1,4 +1,4 @@
-angular.module('VancouverAccessibleParking', ['ionic', 'ion-google-place'])
+angular.module('VancouverAccessibleParking', ['ionic'])
 
     .run(function ($ionicPlatform) {
         $ionicPlatform.ready(function () {
@@ -38,13 +38,12 @@ angular.module('VancouverAccessibleParking', ['ionic', 'ion-google-place'])
     })
 
     .directive('onEnter', function () {
-        return function (scope, element, attrs) {
+        return function ($scope, element, attrs) {
             element.bind("keydown keypress", function (event) {
                 if(event.which === 13) {
-                    scope.$eval(attrs.onEnter);
+                    $scope.$eval(attrs.onEnter);
                     event.preventDefault();
                 }
             });
         };
     });
-
